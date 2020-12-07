@@ -43,5 +43,5 @@ def plot_CDF(values):
 
 
 # only for non-bert model
-def compute_embedding_coverage():
+def compute_embedding_coverage(input_file, embedding_file):
     pass
