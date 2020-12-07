@@ -1,2 +1,3 @@
 PAD = '[PAD]'
 UNK = '[UNK]'
+MAX_LEN = 999999

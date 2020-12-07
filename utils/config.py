@@ -1,6 +1,6 @@
 import json
-from utils.vocab import Vocab
-from utils.constant import PAD, UNK
+from utils.vocab import Vocab, PositionVocab
+from utils.constant import PAD, UNK, MAX_LEN
 
 
 class Config:
@@ -14,7 +14,19 @@ class Config:
             setattr(self, k, v)
 
     def build_vocab(self, vocab_file, build_vocab):
-        pass
+        self.word_vocab = Vocab('word', [PAD, UNK])
+        self.relation_vocab = Vocab('relation')
+        self.head_position_vocab = PositionVocab('head_position', [MAX_LEN])
+        self.tail_position_vocab = PositionVocab('tail_position', [MAX_LEN])
+        self.pretrain_word_embedding = None
+
+        if build_vocab is True:
+            self.build_word_vocab()
+            self.build_relation_vocab(self.relation_file)
+            self.load_pretrain_embedding(self.embedding_file)
+            self.save(vocab_file)
+        else:
+            self.load(vocab_file)
 
     def build_word_vocab(self):
         pass
