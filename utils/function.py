@@ -1,5 +1,6 @@
 import torch
 import random
+import jsonlines as jl
 import unicodedata
 import numpy as np
 from collections import Counter
@@ -43,5 +44,18 @@ def plot_CDF(values):
 
 
 # only for non-bert model
-def compute_embedding_coverage(input_file, embedding_file):
-    pass
+def compute_embedding_coverage(input_file, embedding_file, uncased=True):
+    token = set()
+    with jl.open(input_file, 'r') as f:
+        for line in f:
+            if uncased is True:
+                token.update([t.lower() for t in line['token']])
+            else:
+                token.update(line['token'])
+
+    vocab = set()
+    with jl.open(embedding_file, 'r') as f:
+        for line in f:
+            vocab.add(line['token'])
+
+    print(f'Token Coverage: {len(token & vocab) / len(token):.4f}')
