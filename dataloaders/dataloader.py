@@ -45,21 +45,21 @@ class DataLoader:
 
             # padding
             max_length = max([one['length'] for one in current_data])
-            token = []
+            word = []
             length = []
             head_position = []
             tail_position = []
             relation = []
 
             for one in current_data:
-                token.append(one['token'] + [self.word_vocab.get_index(PAD)] * (max_length - one['length']))
+                word.append(one['word'] + [self.word_vocab.get_index(PAD)] * (max_length - one['length']))
                 length.append(one['length'])
                 head_position.append(one['head_position'] + [self.head_position_vocab.get_index(MAX_LEN)] * (max_length - one['length']))
                 tail_position.append(one['tail_position'] + [self.tail_position_vocab.get_index(MAX_LEN)] * (max_length - one['length']))
                 relation.append(one['relation'])
 
             return {
-                'token': torch.tensor(token),
+                'word': torch.tensor(word),
                 'length': torch.tensor(length),
                 'head_position': torch.tensor(head_position),
                 'tail_position': torch.tensor(tail_position)
@@ -68,20 +68,20 @@ class DataLoader:
             }
 
     def build(self, line):
-        token = line['token']
+        word = line['token']
         relation = line['relation']
         head_start, head_end = line['head'][1][0], line['head'][1][-1]
         tail_start, tail_end = line['tail'][1][0], line['tail'][1][-1]
 
         if self.word_norm:
-            token = [word_norm(t) for t in token]
+            word = [word_norm(t) for t in word]
 
         if self.word_uncased:
-            token = [t.lower() for t in token]
+            word = [t.lower() for t in word]
 
         head_position = []
         tail_position = []
-        for index in range(len(token)):
+        for index in range(len(word)):
             if index < head_start:
                 head_position.append(index - head_start)
             elif index > head_end:
@@ -97,8 +97,8 @@ class DataLoader:
                 tail_position.append(0)
 
         return {
-            'token': [self.word_vocab.get_index(t) for t in token],
-            'length': len(token),
+            'word': [self.word_vocab.get_index(t) for t in word],
+            'length': len(word),
             'head_position': [self.head_position_vocab.get_index(p) for p in head_position],
             'tail_position': [self.tail_position_vocab.get_index(p) for p in tail_position],
             'relation': self.relation_vocab.get_index(relation)
