@@ -1,4 +1,5 @@
 from .cnn import CNN
+from .cnn_ranking import CNNRanking
 from .gru import GRU
 from .lstm import LSTM
 from .bert import BERT
