@@ -76,8 +76,8 @@ class BERTDataLoader:
         tail_index = [0] * len(bert_token)
 
         # +1 means [CLS]
-        head_index[head_start + 1:head_end + 2] = [1] * (head_end - head_start)
-        tail_index[tail_start + 1:tail_end + 2] = [1] * (tail_end - tail_start)
+        head_index[head_start + 1:head_end + 2] = [1] * (head_end - head_start + 1)
+        tail_index[tail_start + 1:tail_end + 2] = [1] * (tail_end - tail_start + 1)
 
         return {
             'bert_token': self.bert_tokenizer.convert_tokens_to_ids(bert_token),
