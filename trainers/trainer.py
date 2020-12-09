@@ -60,18 +60,21 @@ class Trainer(BaseTrainer):
 
             # evaluate
             result = self.evaluate()
-            print(f"Epoch: {epoch} | P: {result['precision']} | R: {result['recall']} | F1: {result['f1']}")
-            if result['f1'] > best_f1:
+            print(f"Epoch: {epoch} | P: {result['macro_precision']} | R: {result['macro_recall']} | F1: {result['macro_f1']}")
+            if result['macro_f1'] > best_f1:
                 print('Get a new best result.')
-                best_f1 = result['f1']
+                best_f1 = result['macro_f1']
                 # 0 mean best model
                 torch.save(state, Path(self.model_path, 'model-0.pkl'))
 
             self.logger.write({
                 'epoch': epoch,
-                'precision': result['precision'],
-                'recall': result['recall'],
-                'f1': result['f1'],
+                'micro_precision': result['micro_precision'],
+                'micro_recall': result['micro_recall'],
+                'micro_f1': result['micro_f1'],
+                'macro_precision': result['macro_precision'],
+                'macro_recall': result['macro_recall'],
+                'macro_f1': result['macro_f1'],
                 'best_f1': best_f1
             })
 
@@ -86,6 +89,6 @@ class Trainer(BaseTrainer):
                     filter_inputs(data, self.config.train_keys, self.device)
                 )
                 total_pred.extend(pred.tolist())
-                total_gold.extend(label['relation'])
+                total_gold.extend(label['relation'].tolist())
 
         return self.metrics.compute(total_pred, total_gold)

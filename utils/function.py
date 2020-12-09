@@ -18,7 +18,13 @@ def set_random_seed(seed):
 
 
 def filter_inputs(inputs, key, device=torch.device('cpu')):
-    return {k: v.to(device) for k, v in inputs.items() if k in key}
+    outputs = dict()
+    for k, v in inputs.items():
+        if k in key:
+            outputs[k] = v.to(device)
+        else:
+            outputs[k] = v
+    return outputs
 
 
 def word_norm(word):

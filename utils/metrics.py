@@ -40,7 +40,7 @@ class Metrics:
         total_recall = []
         total_f1 = []
 
-        total_relation = set(pred_by_relation.keys()) & set(gold_by_relation.keys())
+        total_relation = set(pred_by_relation.keys()) | set(gold_by_relation.keys())
         for relation in total_relation:
             precision = 0.0
             if pred_by_relation[relation] > 0:
