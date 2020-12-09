@@ -16,7 +16,7 @@ class RankTrainer(BaseTrainer):
         self.dataloader = dataloader
 
         if config.optimizer == 'SGD':
-            self.optimizer = optim.SGD(self.model.parameters(), lr=config.learning_rate)
+            self.optimizer = optim.SGD(self.model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay)
         elif config.optimizer == 'Adam':
             self.optimizer = optim.Adam(self.model.parameters(), lr=config.learning_rate)
         elif config.optimizer == 'AdamW':

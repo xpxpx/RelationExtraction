@@ -32,8 +32,10 @@ class CNNRanking(nn.Module):
             kernel_size=config.kernel_size
         )
 
-        self.relation_embedding = nn.Parameter(torch.Tensor(config.hidden_dim, config.relation_vocab.size()))
-        scale = math.sqrt(6 / (config.relation_vocab.size() + config.hidden_dim))
+        self.linear = nn.Linear(config.hidden_dim, config.output_dim)
+
+        self.relation_embedding = nn.Parameter(torch.Tensor(config.output_dim, config.relation_vocab.size()))
+        scale = math.sqrt(6 / (config.relation_vocab.size() + config.output_dim))
         nn.init.uniform_(self.relation_embedding.data, -scale, scale)
 
         self.input_drop = nn.Dropout(config.input_dropout)
@@ -51,6 +53,7 @@ class CNNRanking(nn.Module):
 
         hidden = self.encoder(total_embed)
         hidden = self.hidden_drop(hidden)
+        hidden = torch.tanh(self.linear(hidden))
 
         positive_score = torch.sum(hidden * torch.index_select(self.relation_embedding, 1, label['relation']).t(), dim=-1)
         total_negative_score = torch.matmul(hidden, self.relation_embedding)
@@ -71,6 +74,7 @@ class CNNRanking(nn.Module):
 
         hidden = self.encoder(total_embed)
         hidden = self.hidden_drop(hidden)
+        hidden = torch.tanh(self.linear(hidden))
 
         score = torch.matmul(hidden, self.relation_embedding)
         pred = torch.argmax(score, dim=-1)
