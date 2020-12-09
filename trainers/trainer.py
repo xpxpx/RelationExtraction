@@ -25,7 +25,7 @@ class Trainer(BaseTrainer):
             raise ValueError('Unknown optimizer.')
 
         self.crit = nn.CrossEntropyLoss()
-        self.metrics = Metrics()
+        self.metrics = Metrics(ignore_index=0)
 
     def train(self, start_epoch=0):
         best_f1 = 0.0
@@ -35,7 +35,7 @@ class Trainer(BaseTrainer):
             for step, (data, label) in enumerate(pbar):
                 self.optimizer.zero_grad()
                 # forward
-                logits, pred = self.model(
+                logits, _ = self.model(
                     filter_inputs(data, self.config.train_keys, self.device)
                 )
                 # backward
@@ -43,7 +43,8 @@ class Trainer(BaseTrainer):
                 loss.backward()
 
                 # gradient clip
-                nn.utils.clip_grad_norm_(self.model.parameters(), self.config.max_grad_norm)
+                if self.config.max_grad_norm > 0:
+                    nn.utils.clip_grad_norm_(self.model.parameters(), self.config.max_grad_norm)
 
                 self.optimizer.step()
 
@@ -75,9 +76,16 @@ class Trainer(BaseTrainer):
             })
 
     def evaluate(self, dataloader_name='dev'):
+        total_gold = []
+        total_pred = []
         self.model.eval()
         with torch.no_grad():
             pbar = tqdm(self.dataloader[dataloader_name], ncols=100)
             for step, (data, label) in enumerate(pbar):
-                pass
-        pass
+                _, pred = self.model(
+                    filter_inputs(data, self.config.train_keys, self.device)
+                )
+                total_pred.extend(pred.tolist())
+                total_gold.extend(label['relation'])
+
+        return self.metrics.compute(total_pred, total_gold)

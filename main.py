@@ -1,4 +1,9 @@
 import argparse
+import utils
+import dataloaders
+import models
+import trainers
+from utils.function import set_random_seed
 
 
 def parse_args():
@@ -14,7 +19,21 @@ def parse_args():
 
 
 def train(config):
-    pass
+    # set random seed
+    set_random_seed(config.seed)
+
+    # build dataloader
+    train_dataloader = getattr(dataloaders, config.dataloader)(config, config.train_file, config.batch_size, shuffle=True)
+    dev_dataloader = getattr(dataloaders, config.dataloader)(config, config.dev_file, 50, shuffle=False)
+    test_dataloader = getattr(dataloaders, config.dataloader)(config, config.test_file, 50, shuffle=False)
+
+    # build model
+    model = getattr(models, config.model)(config)
+
+    # build trainer
+    trainer = getattr(trainers, config.trainer)(config, model, dataloader={'train': train_dataloader, 'dev': dev_dataloader, 'test': test_dataloader})
+
+    trainer.train()
 
 
 def evaluate(config):
@@ -22,7 +41,20 @@ def evaluate(config):
 
 
 def main():
-    pass
+    args = vars(parse_args())
+    if args['run'] == 'train':
+        config = getattr(utils, args['config'])(args['config_file'])
+        # update config by input
+        config.gpu = args['gpu']
+        config.seed = args['seed']
+        config.alias += '_' + str(args['seed'])
+        config.build_vocab(args['vocab_file'], args['build_vocab'])
+        train(config)
+    elif args['run'] == 'evaluate':
+        pass
+    else:
+        raise ValueError('Unknown run operate.')
+
 
 if __name__ == '__main__':
     main()

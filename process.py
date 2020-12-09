@@ -133,6 +133,6 @@ def process_embedding(input_file, output_file, embedding_dim=300):
 
 
 if __name__ == '__main__':
-    # process_semeval_dual_relation('./raw_data/SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_FILE.TXT', './data/semeval/train.dual.jl', './data/semeval/relation.dual.txt')
-    # process_semeval_dual_relation('./raw_data/SemEval2010_task8_all_data/SemEval2010_task8_testing_keys/TEST_FILE_FULL.TXT', './data/semeval/test.dual.jl')
-    process_embedding('./raw_data/embedding/glove.6B.50d.txt', './data/embedding/glove.6B.50d.jl', embedding_dim=50)
+    process_semeval_dual_relation('./raw_data/SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_FILE.TXT', './data/semeval/train.jl', './data/semeval/relation.txt')
+    process_semeval_dual_relation('./raw_data/SemEval2010_task8_all_data/SemEval2010_task8_testing_keys/TEST_FILE_FULL.TXT', './data/semeval/test.jl')
+    # process_embedding('./raw_data/embedding/glove.6B.50d.txt', './data/embedding/glove.6B.50d.jl', embedding_dim=50)
