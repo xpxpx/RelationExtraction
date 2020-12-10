@@ -43,6 +43,8 @@ class BERTDataLoader:
             bert_attention_mask = []
             bert_head_index = []
             bert_tail_index = []
+            bert_head_start_position = []
+            bert_tail_start_position = []
             relation = []
 
             for one in current_data:
@@ -50,26 +52,26 @@ class BERTDataLoader:
                 bert_attention_mask.append([1] * one['bert_length'] + [0] * (max_bert_length - one['bert_length']))
                 bert_head_index.append(one['bert_head_index'] + [0] * (max_bert_length - one['bert_length']))
                 bert_tail_index.append(one['bert_tail_index'] + [0] * (max_bert_length - one['bert_length']))
+                bert_head_start_position.append(one['bert_head_start_position'])
+                bert_tail_start_position.append(one['bert_tail_start_position'])
                 relation.append(one['relation'])
 
             return {
                 'bert_token': torch.tensor(bert_token),
                 'bert_attention_mask': torch.tensor(bert_attention_mask),
                 'bert_head_index': torch.tensor(bert_head_index),
-                'bert_tail_index': torch.tensor(bert_tail_index)
+                'bert_tail_index': torch.tensor(bert_tail_index),
+                'bert_head_start_position': torch.tensor(bert_head_start_position),
+                'bert_tail_start_position': torch.tensor(bert_tail_start_position)
             }, {
                 'relation': torch.tensor(relation)
             }
 
     def build(self, line):
-        token = line['token']
+        bert_token = line['token']
         relation = line['relation']
         head_start, head_end = line['head'][1][0], line['head'][1][-1]
         tail_start, tail_end = line['tail'][1][0], line['tail'][1][-1]
-
-        bert_token = []
-        for t in token:
-            bert_token.extend(self.bert_tokenizer.tokenize(t))
 
         bert_token = [self.bert_tokenizer.cls_token] + bert_token + [self.bert_tokenizer.sep_token]
         head_index = [0] * len(bert_token)
@@ -84,5 +86,9 @@ class BERTDataLoader:
             'bert_length': len(bert_token),
             'bert_head_index': head_index,
             'bert_tail_index': tail_index,
+            'bert_head_start_position': [head_start + 1],
+            'bert_tail_start_position': [tail_start + 1],
+            'bert_head_end_position': [head_end + 1],
+            'bert_tail_end_position': [tail_end + 1],
             'relation': self.relation_vocab.get_index(relation)
         }

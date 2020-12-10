@@ -21,6 +21,6 @@ class BERTState(nn.Module):
     @staticmethod
     def gather(inputs, index):
         batch_size = inputs.size(0)
-        hidden_dim = inputs.size(1)
+        hidden_dim = inputs.size(-1)
         output = torch.gather(inputs, 1, index.unsqueeze(2).expand(batch_size, 1, hidden_dim))
         return output.squeeze(1)
