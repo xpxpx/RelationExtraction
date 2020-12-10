@@ -3,6 +3,7 @@ import json
 from tqdm import tqdm
 import jsonlines as jl
 from transformers import AutoTokenizer
+from utils.constant import ENTITY_MARKER
 
 
 def clean(text):
@@ -203,6 +204,23 @@ def process_semeval_for_bert_add_entity_marker(input_file, output_file, bert_fil
             e2_start_index = token2offset[e2_start_index]
             e2_end_index = token2offset[e2_end_index]
 
+            if e1_start_index < e2_start_index:
+                new_token.insert(e1_start_index, ENTITY_MARKER['head_start'])
+                new_token.insert(e1_end_index + 1, ENTITY_MARKER['head_end'])
+                new_token.insert(e2_start_index + 2, ENTITY_MARKER['tail_start'])
+                new_token.insert(e2_end_index + 3, ENTITY_MARKER['tail_end'])
+                e1_end_index += 2
+                e2_start_index += 2
+                e2_end_index += 4
+            else:
+                new_token.insert(e2_start_index, ENTITY_MARKER['tail_start'])
+                new_token.insert(e2_end_index + 1, ENTITY_MARKER['tail_end'])
+                new_token.insert(e1_start_index + 2, ENTITY_MARKER['head_start'])
+                new_token.insert(e1_end_index + 3, ENTITY_MARKER['head_end'])
+                e2_end_index += 2
+                e1_start_index += 2
+                e1_end_index += 4
+
             relation = lines[index + 1].strip()
             if relation != 'Other':
                 relation = relation.split('(')[0]
@@ -239,6 +257,8 @@ def process_embedding(input_file, output_file, embedding_dim=300):
 
 
 if __name__ == '__main__':
-    process_semeval_for_bert('./raw_data/SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_FILE.TXT', './data/semeval/train.bert.jl', relation_file='./data/semeval/relation.txt')
+    process_semeval_for_bert('./raw_data/SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_FILE.TXT', './data/semeval/train.bert.jl')
     process_semeval_for_bert('./raw_data/SemEval2010_task8_all_data/SemEval2010_task8_testing_keys/TEST_FILE_FULL.TXT', './data/semeval/test.bert.jl')
+    process_semeval_for_bert_add_entity_marker('./raw_data/SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_FILE.TXT', './data/semeval/train.bert.marker.jl')
+    process_semeval_for_bert_add_entity_marker('./raw_data/SemEval2010_task8_all_data/SemEval2010_task8_testing_keys/TEST_FILE_FULL.TXT', './data/semeval/test.bert.marker.jl')
     # process_embedding('./raw_data/embedding/glove.6B.50d.txt', './data/embedding/glove.6B.50d.jl', embedding_dim=50)
