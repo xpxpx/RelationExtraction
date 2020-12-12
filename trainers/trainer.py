@@ -49,7 +49,7 @@ class Trainer(BaseTrainer):
                     nn.utils.clip_grad_norm_(self.model.parameters(), self.config.max_grad_norm)
 
                 self.optimizer.step()
-                self.scheduler.step()
+                # self.scheduler.step()
 
                 pbar.set_description(f"[EPOCH]: {epoch}/{self.config.epochs} | [STEP]: {step}/{len(self.dataloader['train'])} | Loss: {loss.item():.4f}")
 
