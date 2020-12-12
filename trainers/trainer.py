@@ -24,6 +24,8 @@ class Trainer(BaseTrainer):
         else:
             raise ValueError('Unknown optimizer.')
 
+        self.scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(self.optimizer, 2 * len(self.dataloader['train']))
+
         self.crit = nn.CrossEntropyLoss()
         self.metrics = Metrics(ignore_index=0)
 
@@ -47,6 +49,7 @@ class Trainer(BaseTrainer):
                     nn.utils.clip_grad_norm_(self.model.parameters(), self.config.max_grad_norm)
 
                 self.optimizer.step()
+                self.scheduler.step()
 
                 pbar.set_description(f"[EPOCH]: {epoch}/{self.config.epochs} | [STEP]: {step}/{len(self.dataloader['train'])} | Loss: {loss.item():.4f}")
 
